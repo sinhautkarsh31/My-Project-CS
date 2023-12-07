@@ -1,0 +1,83 @@
+<?php
+session_start();
+if (isset($_SESSION['admin_id']) && isset($_SESSION['role'])) {
+    if ($_SESSION['role'] == 'Admin') {
+
+        include '../DB_connection.php';
+        include "data/student.php";
+
+        
+        
+        $sort = isset($_GET['sort']) ? $_GET['sort'] : 'id';
+
+        switch ($sort) {
+            case 'id':
+                $sql = "SELECT * FROM students ORDER BY student_id";
+                break;
+            case 'first_name':
+                $sql = "SELECT * FROM students ORDER BY fname";
+                break;
+            case 'last_name':
+                $sql = "SELECT * FROM students ORDER BY lname";
+                break;
+            case 'username':
+                $sql = "SELECT * FROM students ORDER BY username";
+                break;
+            case 'grade':
+                $sql = "SELECT * FROM students ORDER BY grade";
+                break;
+            default:
+                $sql = "SELECT * FROM students ORDER BY student_id";
+                break;
+        }
+
+        // prepare and execute the SQL query
+        $stmt = $conn->prepare($sql);
+        $stmt->execute();
+
+        // fetch the results as an associative array
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // display the table to the user
+        echo "<h1>Students</h1>";
+        echo "<p>Number of students: " . count($results) . "</p>";
+
+        // display the sorting options to the user
+        echo "<p>Sort by: ";
+        echo "<a href='student-sort.php?sort=id'>ID</a> | "; // add a link for sorting by id
+        echo "<a href='student-sort.php?sort=first_name'>First Name</a> | "; // add a link for sorting by first name
+        echo "<a href='student-sort.php?sort=last_name'>Last Name</a> | "; // add a link for sorting by last name
+        echo "<a href='student-sort.php?sort=username'>Username</a> | "; // add a link for sorting by username
+        echo "<a href='student-sort.php?sort=grade'>Grade</a>"; // add a link for sorting by grade
+        echo "</p>";
+
+        // display the results as a table
+        echo "<table border='1'>";
+        echo "<tr>";
+        echo "<th>ID</th>";
+        echo "<th>First Name</th>";
+        echo "<th>Last Name</th>";
+        echo "<th>Username</th>";
+        echo "<th>Grade</th>";
+        echo "</tr>";
+        foreach ($results as $result) {
+            echo "<tr>";
+            echo "<td>" . $result['student_id'] . "</td>";
+            echo "<td>" . $result['fname'] . "</td>";
+            echo "<td>" . $result['lname'] . "</td>";
+            echo "<td>" . $result['username'] . "</td>";
+            echo "<td>" . $result['grade'] . "</td>";
+            echo "</tr>";
+        }
+        echo "</table>";
+
+    } else {
+        header("Location: ../../logout.php");
+        exit;
+    }
+
+} else {
+    header("Location: ../../logout.php");
+    exit;
+}
+?>
